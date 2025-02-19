@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.util.ArraySet;
+import android.util.Log;
 
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceManager;
@@ -31,6 +32,7 @@ import java.util.Set;
 public class TouchscreenGestureSettings extends SettingsPreferenceFragment
         implements Searchable {
 
+     private static final String TAG = KeyHandler.class.getSimpleName();
     private static final String KEY_TOUCHSCREEN_GESTURE = "touchscreen_gesture";
     private static final String KEY_TOUCHSCREEN_GESTURE_SETTINGS =
             "touchscreen_gesture_settings";
@@ -52,10 +54,12 @@ public class TouchscreenGestureSettings extends SettingsPreferenceFragment
     }
 
     private void initTouchscreenGestures() {
+        Log.d(TAG,"initTouchscreenGestures:");
         final LineageHardwareManager manager = LineageHardwareManager.getInstance(getContext());
         mTouchscreenGestures = manager.getTouchscreenGestures();
         final int[] actions = getDefaultGestureActions(requireContext(), mTouchscreenGestures);
         for (final TouchscreenGesture gesture : mTouchscreenGestures) {
+            Log.d(TAG,"Gesture: name"+gesture.name+ " id:" + gesture.id+ " keycode:" + gesture.keycode);
             getPreferenceScreen().addPreference(new TouchscreenGesturePreference(
                     getContext(), gesture, actions[gesture.id]));
         }

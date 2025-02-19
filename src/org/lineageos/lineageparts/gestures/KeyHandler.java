@@ -42,7 +42,7 @@ import android.view.KeyEvent;
 import com.android.internal.os.DeviceKeyHandler;
 
 import lineageos.providers.LineageSettings;
-
+import java.util.Arrays;
 import java.util.List;
 
 public class KeyHandler implements DeviceKeyHandler {
@@ -81,6 +81,8 @@ public class KeyHandler implements DeviceKeyHandler {
                     TouchscreenGestureConstants.UPDATE_EXTRA_KEYCODE_MAPPING);
             int[] actions = intent.getIntArrayExtra(
                     TouchscreenGestureConstants.UPDATE_EXTRA_ACTION_MAPPING);
+            Log.d(TAG, "Keycodes:"+Arrays.toString(keycodes));
+            Log.d(TAG, "Actions:"+Arrays.toString(actions));
             mActionMapping.clear();
             if (keycodes != null && actions != null && keycodes.length == actions.length) {
                 for (int i = 0; i < keycodes.length; i++) {
@@ -125,6 +127,7 @@ public class KeyHandler implements DeviceKeyHandler {
         mContext.registerReceiver(mUpdateReceiver,
                 new IntentFilter(TouchscreenGestureConstants.UPDATE_PREFS_ACTION),
                 Context.RECEIVER_NOT_EXPORTED);
+        Log.d(TAG, "KeyHandler(): mProximityWakeSupported"+mProximityWakeSupported);
     }
 
     private class TorchModeCallback extends CameraManager.TorchCallback {
@@ -142,6 +145,8 @@ public class KeyHandler implements DeviceKeyHandler {
     }
 
     public KeyEvent handleKeyEvent(final KeyEvent event) {
+        Log.d(TAG, "handleKeyEvent: getKeyCode:"+event.getKeyCode());
+        Log.d(TAG, "handleKeyEvent: getAction:"+event.getKeyCode());
         final int action = mActionMapping.get(event.getScanCode(), -1);
         if (action < 0 || event.getAction() != KeyEvent.ACTION_UP || !hasSetupCompleted()) {
             return event;
@@ -171,6 +176,7 @@ public class KeyHandler implements DeviceKeyHandler {
     }
 
     private void processEvent(final int action) {
+        Log.d(TAG, "processEvent: action:"+action );
         mSensorManager.registerListener(new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
@@ -198,6 +204,7 @@ public class KeyHandler implements DeviceKeyHandler {
     }
 
     private Message getMessageForAction(final int action) {
+        Log.d(TAG,"getMessageForAction" + action);
         Message msg = mEventHandler.obtainMessage(GESTURE_REQUEST);
         msg.arg1 = action;
         return msg;
@@ -211,6 +218,7 @@ public class KeyHandler implements DeviceKeyHandler {
 
         @Override
         public void handleMessage(final Message msg) {
+            Log.d(TAG, "handleMessage:"+msg.arg1);
             switch (msg.arg1) {
                 case TouchscreenGestureConstants.ACTION_CAMERA:
                     launchCamera();
@@ -247,6 +255,9 @@ public class KeyHandler implements DeviceKeyHandler {
                     break;
                 case TouchscreenGestureConstants.ACTION_AMBIENT_DISPLAY:
                     launchDozePulse();
+                    break;
+                case TouchscreenGestureConstants.ACTION_WAKE_DEVICE:
+                    performWakeUp();
                     break;
             }
         }

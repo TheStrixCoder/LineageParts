@@ -26,16 +26,6 @@
     </string-array>
 
     <!-- Values for the notification light pulse spinners -->
-    <string-array name="notification_breath_length_entries" translatable="false">
-        <item>@string/pulse_length_always_on</item>
-        <item>@string/pulse_length_blink</item>
-    </string-array>
-
-    <string-array name="notification_breath_length_values" translatable="false">
-        <item>1</item>
-        <item>1000</item>
-    </string-array>
-
     <string-array name="notification_pulse_length_entries" translatable="false">
         <item>@string/pulse_length_always_on</item>
         <item>@string/pulse_length_very_short</item>
@@ -329,6 +319,7 @@
         <item>@string/touchscreen_gesture_action_volume_down</item>
         <item>@string/touchscreen_gesture_action_volume_up</item>
         <item>@string/touchscreen_gesture_action_ambient_display</item>
+        <item>@string/touchscreen_gesture_action_wake_device</item>
     </string-array>
 
     <string-array name="touchscreen_gesture_action_values">
@@ -345,6 +336,7 @@
         <item>10</item>
         <item>11</item>
         <item>12</item>
+        <item>13</item>
     </string-array>
 
     <string-array name="torch_long_press_power_timeout_entries" translatable="false">

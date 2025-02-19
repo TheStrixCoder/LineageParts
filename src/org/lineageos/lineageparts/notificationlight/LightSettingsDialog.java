@@ -73,28 +73,22 @@ public class LightSettingsDialog extends AlertDialog implements
 
     private Context mContext;
 
-    public enum OnOffType {
-        TOGGLE,
-        BREATH,
-        PULSE;
-    };
-
     protected LightSettingsDialog(Context context, int initialColor, int initialSpeedOn,
             int initialSpeedOff) {
         super(context);
 
-        init(context, initialColor, initialSpeedOn, initialSpeedOff, OnOffType.PULSE, 0);
+        init(context, initialColor, initialSpeedOn, initialSpeedOff, true, 0);
     }
 
     protected LightSettingsDialog(Context context, int initialColor, int initialSpeedOn,
-            int initialSpeedOff, OnOffType onOffType, int brightness) {
+            int initialSpeedOff, boolean onOffChangeable, int brightness) {
         super(context);
 
-        init(context, initialColor, initialSpeedOn, initialSpeedOff, onOffType, brightness);
+        init(context, initialColor, initialSpeedOn, initialSpeedOff, onOffChangeable, brightness);
     }
 
     private void init(Context context, int color, int speedOn, int speedOff,
-            OnOffType onOffType, int brightness) {
+            boolean onOffChangeable, int brightness) {
         mContext = context;
         mNotificationManager = mContext.getSystemService(NotificationManager.class);
 
@@ -103,7 +97,7 @@ public class LightSettingsDialog extends AlertDialog implements
 
         // To fight color banding.
         getWindow().setFormat(PixelFormat.RGBA_8888);
-        setUp(color, speedOn, speedOff, onOffType, brightness);
+        setUp(color, speedOn, speedOff, onOffChangeable, brightness);
     }
 
     /**
@@ -114,7 +108,8 @@ public class LightSettingsDialog extends AlertDialog implements
      * @param speedOn - the flash time in ms
      * @param speedOff - the flash length in ms
      */
-    private void setUp(int color, int speedOn, int speedOff, OnOffType onOffType, int brightness) {
+    private void setUp(int color, int speedOn, int speedOff, boolean onOffChangeable,
+               int brightness) {
         mInflater = mContext.getSystemService(LayoutInflater.class);
         View layout = mInflater.inflate(R.layout.dialog_light_settings, null);
 
@@ -128,46 +123,28 @@ public class LightSettingsDialog extends AlertDialog implements
 
         mHexColorInput.setOnFocusChangeListener(this);
 
-        if (onOffType == OnOffType.TOGGLE) {
-            View speedSettingsGroup = layout.findViewById(R.id.speed_title_view);
-            speedSettingsGroup.setVisibility(View.GONE);
-            mPulseSpeedOn.setEnabled(false);
-            mPulseSpeedOff.setEnabled(false);
-        } else if (onOffType == OnOffType.BREATH) {
-            mPulseSpeedAdapterOn = new PulseSpeedAdapter(
-                    R.array.notification_breath_length_entries,
-                    R.array.notification_breath_length_values,
-                    speedOn);
-            mPulseSpeedAdapterOff = new PulseSpeedAdapter(
-                    R.array.notification_pulse_speed_entries,
-                    R.array.notification_pulse_speed_values,
-                    speedOff);
-
-            mPulseSpeedOn.setAdapter(mPulseSpeedAdapterOn);
-            mPulseSpeedOn.setSelection(mPulseSpeedAdapterOn.getTimePosition(speedOn));
-            mPulseSpeedOn.setOnItemSelectedListener(mPulseSelectionListener);
-
-            mPulseSpeedOff.setAdapter(mPulseSpeedAdapterOff);
-            mPulseSpeedOff.setVisibility(View.INVISIBLE);
-        } else if (onOffType == OnOffType.PULSE) {
+        if (onOffChangeable) {
             mPulseSpeedAdapterOn = new PulseSpeedAdapter(
                     R.array.notification_pulse_length_entries,
                     R.array.notification_pulse_length_values,
                     speedOn);
-            mPulseSpeedAdapterOff = new PulseSpeedAdapter(
-                    R.array.notification_pulse_speed_entries,
-                    R.array.notification_pulse_speed_values,
-                    speedOff);
-
             mPulseSpeedOn.setAdapter(mPulseSpeedAdapterOn);
             mPulseSpeedOn.setSelection(mPulseSpeedAdapterOn.getTimePosition(speedOn));
             mPulseSpeedOn.setOnItemSelectedListener(mPulseSelectionListener);
 
+            mPulseSpeedAdapterOff = new PulseSpeedAdapter(R.array.notification_pulse_speed_entries,
+                    R.array.notification_pulse_speed_values,
+                    speedOff);
             mPulseSpeedOff.setAdapter(mPulseSpeedAdapterOff);
             mPulseSpeedOff.setSelection(mPulseSpeedAdapterOff.getTimePosition(speedOff));
             mPulseSpeedOff.setOnItemSelectedListener(mPulseSelectionListener);
-            mPulseSpeedOff.setEnabled(speedOn != 1);
+        } else {
+            View speedSettingsGroup = layout.findViewById(R.id.speed_title_view);
+            speedSettingsGroup.setVisibility(View.GONE);
         }
+
+        mPulseSpeedOn.setEnabled(onOffChangeable);
+        mPulseSpeedOff.setEnabled((speedOn != 1) && onOffChangeable);
 
         setView(layout);
         setTitle(R.string.edit_light_settings);
